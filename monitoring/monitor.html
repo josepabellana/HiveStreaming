@@ -1,16 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <style>
+        h1{
+            text-align: center;
+        }
+    </style>
     <meta charset="UTF-8" />
     <title>Monitoring</title>
     <link type="stylesheet" rel="./style.css" />
   </head>
   <body>
+    <h1>Real Time Monitoring</h1>
     <div class="main__container">
       <div class="chart__bitrate">
-        <div class="bitrates__classes"></div>
+        <div class="bitrates__choosen">
+            <h4>Bitrate Choosen:</h4>
+            <p id="bitratePlayer"></p>
+        </div>
         <div class="bitrates__data"></div>
       </div>
+    </div>
+    <h1>Playback Statistics</h1>
+    <div class="playback__container">
+    <h2>HIGHEST_BITRATE_POSSIBLE</h2>
+
+    <h2>TOO_MANY_BITRATE_SWITCHES</h2>
+
+    <h2>TOO_MANY_BUFFERING</h2>
+
     </div>
     <script>
       const logFileText = async (file) => {
@@ -25,6 +43,11 @@
             }
         }
         console.log(output)
+
+
+
+
+        document.getElementById("bitratePlayer").innerHTML = output[output.length-1]
       };
 
       logFileText("../statisticuser24.json");
