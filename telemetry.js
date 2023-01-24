@@ -10,41 +10,14 @@
         body: JSON.stringify({
           streamInformation,
           videobitlog,
-          // audiobitlog,
-          // texttracklog,
-          // events,
+          
         })
       });
 
     }
     let streamInformation = {}; //streaminfroamtion contains information about the languages and video and sound bit rate
     let videobitlog = {}; //this record the changes in the bitrate 
-    let events = {
-      pause: {
-        time: []
-      },
-      play: {
-        time: []
-      },
-      skip: {
-        time: []
-      },
-      buffering: {
-        time: []
-      },
-      fullscreenchange: {
-        time: []
-      },
-
-      volumechange: {
-        time: []
-      },
-      ended: {
-        time: []
-      }
-    };
-    let texttracklog = {}; //recording the timestamp for each change in subtitle or captions
-
+    
 
 
     var myVar = setInterval(function () { //every duration we send the objects to our server and reinitialize the objects to get new statistics for the next period
@@ -57,12 +30,10 @@
         body: JSON.stringify({
           streamInformation,
           videobitlog,
-          // audiobitlog,
-          // texttracklog,
-          // events
+          
         })
       });
-      //initialize the objects each period
+      
       texttracklog = {};
       videobitlog = {};
       player
@@ -76,38 +47,6 @@
           };
         });
 
-      player.textTracks().tracks_.forEach(function (element) {
-        texttracklog[element.label] = {
-          changes: []
-        };
-      });
-
-      events = {
-        pause: {
-          time: []
-        },
-        play: {
-          time: []
-        },
-        skip: {
-          time: []
-        },
-        buffering: {
-          time: []
-        },
-        fullscreenchange: {
-          time: []
-        },
-
-        volumechange: {
-          time: []
-        },
-        ended: {
-          time: []
-        }
-      };
-
-
     }, options.timeperiod);
 
 
@@ -116,38 +55,10 @@
       console.log("plugin telemetry initialized with player ", player);
     };
 
+   
     player.addEventListener("loadedmetadata", function () {
-      player.textTracks().tracks_.forEach(function (element) {
-        texttracklog[element.label] = {
-          changes: []
-        };
-      });
-
-      function evenLogHandler(e) {
-        events[e.type].time.push(player.currentTime());
-        console.log(e.type, "type");
-        console.log("events", events);
-      }
-      player.addEventListener("play", evenLogHandler);
-      player.addEventListener("pause", evenLogHandler);
-      player.addEventListener("skip", evenLogHandler);
-      // player.addEventListener("waiting", evenLogHandler);
-      player.addEventListener("fullscreenchange", evenLogHandler);
-      player.addEventListener("volumechange", evenLogHandler);
-      player.addEventListener("ended", evenLogHandler);
-      player.addEventListener("error", evenLogHandler);
-
-
-
-      player.addEventListener("texttrackchange", function () {
-        
-        if (player.getCurrentTextTrack() && player.getCurrentTextTrack().mode == "showing") {
-          texttracklog[player.getCurrentTextTrack().label].changes.push(
-            player.currentTime()
-          );
-          console.log("texttrackchanged", texttracklog);
-        }
-      });
+      
+  
 
       //building videobitarraylog
 
@@ -207,10 +118,9 @@
         "protocol",
         player.currentType()
       );
-      streamInformation["height"] = player.height;
-      streamInformation["width"] = player.width;
+      streamInformation["height"] = player.height();
+      streamInformation["width"] = player.width();
       streamInformation["manifest"] = player.src();
-      streamInformation["protocol"] = player.currentType();
       
       streamInformation["videotracks"] = player.currentVideoStreamList().streams[0].tracks.map(el => {
         let obj = {
@@ -220,6 +130,7 @@
         };
         return obj;
       });
+      console.log(streamInformation)
     });
 
     // initialize the plugin
