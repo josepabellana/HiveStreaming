@@ -1,0 +1,20 @@
+{
+  "name": "hive",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "commit": "git add . && git commit -m 'x' && git push",
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/josepabellana/HiveStreaming.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/josepabellana/HiveStreaming/issues"
+  },
+  "homepage": "https://github.com/josepabellana/HiveStreaming#readme"
+}
