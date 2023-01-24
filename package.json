@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "commit": "git add . && git commit -m 'x' && git push",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
