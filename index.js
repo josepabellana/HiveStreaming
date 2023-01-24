@@ -1,13 +1,8 @@
-var http = require('https');
 const express = require('express');
 const app = express();
 const fs = require('fs');
-const url = require('url');
-var bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 
-var urlencodedParser = bodyParser.urlencoded({
-  extended: false
-})
 app.use(express.static(__dirname));
 app.use(bodyParser.json());
 
@@ -15,11 +10,10 @@ app.use(bodyParser.json());
 app.post('/', function (req, res) {
   console.log("post");
   console.log(req.body);
-  fs.appendFile("statisticuser"+ new Date().getDate(), JSON.stringify(req.body) + '\n', function (err) {
+  fs.appendFile("statisticuser"+ new Date().getDate()+'.json', JSON.stringify(req.body) + '\n', function (err) {
     if (err) {
       return console.log(err);
     }
-
     console.log("The file was saved!");
   });
   res.end();
@@ -28,6 +22,10 @@ app.post('/', function (req, res) {
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
+
+app.get('/monitor', function (req, res) {
+    res.sendFile(__dirname + './monitoring/monitor.html');
+  });
 
 var server = app.listen(8080, function () {
   var host = server.address().address
