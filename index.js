@@ -4,8 +4,7 @@ const app = express();
 const fs = require('fs');
 const url = require('url');
 var bodyParser = require('body-parser');
-var qs = require('querystring');
-const { countReset } = require('console');
+
 var urlencodedParser = bodyParser.urlencoded({
   extended: false
 })

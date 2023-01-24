@@ -202,19 +202,16 @@
         "loadedmetadata",
         "manifest",
         player.src(),
+        player.height,
+        player.width,
         "protocol",
         player.currentType()
       );
-      streamInformation['height'] = player.height;
-      streamInformation['width'] = player.width;
+      streamInformation["height"] = player.height;
+      streamInformation["width"] = player.width;
       streamInformation["manifest"] = player.src();
       streamInformation["protocol"] = player.currentType();
-      streamInformation["audiotracks"] = player.currentAudioStreamList().streams.map(element => {
-        let obj = {};
-        obj["bitrate"] = element.bitrate;
-        return obj;
-      });
-
+      
       streamInformation["videotracks"] = player.currentVideoStreamList().streams[0].tracks.map(el => {
         let obj = {
           bitrate: el.bitrate,
