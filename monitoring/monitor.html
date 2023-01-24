@@ -1,27 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Monitoring</title>
-    <link type="stylesheet" rel="./style.css">
-    <script  type="text/javascript"  src="./telemetry.js"></script>
-</head>
-<body>
-
+    <link type="stylesheet" rel="./style.css" />
+  </head>
+  <body>
     <div class="main__container">
-        <div class="chart__bitrate">
-            <div class="bitrates__classes">
-                
-            </div>
-            <div class="bitrates__data">
-
-            </div>
-        </div>
-
+      <div class="chart__bitrate">
+        <div class="bitrates__classes"></div>
+        <div class="bitrates__data"></div>
+      </div>
     </div>
-<script>
-    
-</script>
+    <script>
+      const logFileText = async (file) => {
+        const response = await fetch(file);
+        const text = await response.text();
+        let output = [];
+        let initIndex = 0;
+        for(let i = 0; i<text.length; i++){
+            if(text[i] === '\n'){
+                output.push(JSON.parse(text.substring(initIndex,i)));
+                initIndex = i+1;
+            }
+        }
+        console.log(output)
+      };
 
-</body>
+      logFileText("../statisticuser24.json");
+    </script>
+  </body>
 </html>

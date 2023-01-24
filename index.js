@@ -24,7 +24,7 @@ app.get('/', function (req, res) {
 });
 
 app.get('/monitor', function (req, res) {
-    res.sendFile(__dirname + './monitoring/monitor.html');
+    res.sendFile(__dirname + '/monitoring/monitor.html');
   });
 
 var server = app.listen(8080, function () {
