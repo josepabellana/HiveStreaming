@@ -20,8 +20,9 @@
         }),
       });
     };
-    let streamInformation = {}; //streaminfroamtion contains information
-   
+    let streamInformation = {
+      'bitrateChanges' : []
+    }; //streaminfroamtion contains information
     var myVar = setInterval(function () {
       //every duration we send the objects to our server and reinitialize the objects to get new statistics for the next period
       fetch("/", {
@@ -61,6 +62,14 @@
           }
         );
       }
+      
+
+      player.addEventListener(amp.eventName.downloadbitratechanged, function () {
+        console.log("videobitratechanged",player.videoBufferData().downloadCompleted.mediaDownload.bitrate,player.currentTime());
+
+        streamInformation['bitrateChanges'].push([player.videoBufferData().downloadCompleted.mediaDownload.bitrate, Date.now()])
+      });
+
 
       streamInformation["height"] = player.height();
       streamInformation["width"] = player.width();

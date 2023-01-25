@@ -8,13 +8,24 @@ app.use(bodyParser.json());
 
 
 app.post('/', function (req, res) {
-  let { height,width, currentBitrate, videotracks} =  req.body.streamInformation;
-  
+  let { height,width, currentBitrate, videotracks, bitrateChanges} =  req.body.streamInformation;
+  console.log(bitrateChanges);
+
+  //check if current Bitrate is not optimal
   if(Array.isArray(videotracks)){
     let optimalHeight = videotracks.filter(el=>el.bitrate === currentBitrate)[0].height;
     let optimalWidth = videotracks.filter(el=>el.bitrate === currentBitrate)[0].width;
     
     if(optimalHeight < height || optimalWidth < width) console.log('The bitrate chosen by the player is meant for a smaller player frame size');
+  }
+
+
+  //check if bitrate change has happened more than 2 in the last 10 seconds
+  let length = bitrateChanges.length;
+  if(length>3){
+    if(bitrateChanges[length-1][0] !== bitrateChanges[length-2][0] && bitrateChanges[length-2][0] !== bitrateChanges[length-3][0]){
+      if(bitrateChanges[length-1][1] - bitrateChanges[length-3][1] > 10000) console.log('There has been more than 2 changes in bitrate in the last 10 seconds')
+    }
   }
   // fs.appendFile("statisticuser"+ new Date().getDate()+'.json', JSON.stringify(req.body) + '\n', function (err) {
   //   if (err) {
