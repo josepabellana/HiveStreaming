@@ -121,7 +121,9 @@
       streamInformation["height"] = player.height();
       streamInformation["width"] = player.width();
       streamInformation["manifest"] = player.src();
-      streamInformation["currentBitrate"] = player.currentDownloadBitrate();
+      for(let videotrack in videobitlog){
+        if(videotrack.download >0) streamInformation["currentBitrate"] = videotrack;
+      }
       streamInformation["videotracks"] = player.currentVideoStreamList().streams[0].tracks.map(el => {
         let obj = {
           bitrate: el.bitrate,

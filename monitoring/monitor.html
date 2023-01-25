@@ -46,11 +46,11 @@
 
 
 
-
-        document.getElementById("bitratePlayer").innerHTML = output[output.length-1]
+        let currentBitrate = output[output.length-1].videobitlog
+        document.getElementById("bitratePlayer").innerHTML = currentBitrate
       };
 
-      logFileText("../statisticuser24.json");
+      logFileText("../statisticuser25.json");
     </script>
   </body>
 </html>
