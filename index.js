@@ -8,14 +8,20 @@ app.use(bodyParser.json());
 
 
 app.post('/', function (req, res) {
-  console.log("post");
-  console.log(req.body);
-  fs.appendFile("statisticuser"+ new Date().getDate()+'.json', JSON.stringify(req.body) + '\n', function (err) {
-    if (err) {
-      return console.log(err);
-    }
-    console.log("The file was saved!");
-  });
+  let { height,width, currentBitrate, videotracks} =  req.body.streamInformation;
+  
+  if(Array.isArray(videotracks)){
+    let optimalHeight = videotracks.filter(el=>el.bitrate === currentBitrate)[0].height;
+    let optimalWidth = videotracks.filter(el=>el.bitrate === currentBitrate)[0].width;
+    
+    if(optimalHeight < height || optimalWidth < width) console.log('The bitrate chosen by the player is meant for a smaller player frame size');
+  }
+  // fs.appendFile("statisticuser"+ new Date().getDate()+'.json', JSON.stringify(req.body) + '\n', function (err) {
+  //   if (err) {
+  //     return console.log(err);
+  //   }
+  //   console.log("The file was saved!");
+  // });
   res.end();
 
 })
