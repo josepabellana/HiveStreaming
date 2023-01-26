@@ -32,13 +32,13 @@
       // pause: {
       //   time: []
       // },
-      // play: {
-      //   time: []
-      // },
+      play: {
+        time: []
+      },
       // skip: {
       //   time: []
       // },
-      buffering: {
+      waiting: {
         time: []
       },
       // fullscreenchange: {
@@ -52,7 +52,7 @@
       // }
     };
 
-    var myVar = setInterval(function () {
+    var myVar = function () {
       //every duration we send the objects to our server and reinitialize the objects to get new statistics for the next period
       fetch("/", {
         method: "POST",
@@ -66,9 +66,17 @@
         }),
       });
 
-     
+      events = {
+        play: {
+          time: []
+        },
+        waiting: {
+          time: []
+        },
+        
+      };
       
-    }, options.timeperiod);
+    };
 
     let player = this;
     var init = function () {
@@ -80,11 +88,12 @@
 
       function evenLogHandler(e) {
         console.log(e)
-        events["buffering"].time.push(player.currentTime());
+        events[e.type].time.push(Date.now());
         console.log(e.type, "type");
         console.log("events", events);
+        myVar();
       }
-      // player.addEventListener("play", evenLogHandler);
+      player.addEventListener("play", evenLogHandler);
       // player.addEventListener("pause", evenLogHandler);
       // player.addEventListener("skip", evenLogHandler);
       player.addEventListener("waiting", evenLogHandler);
@@ -110,15 +119,17 @@
               'currentBitrate'
             ] = player.videoBufferData().downloadCompleted.mediaDownload.bitrate
             // console.log("changelogforvideo", streamInformation);
+            myVar();
           }
         );
       }
       
 
       player.addEventListener(amp.eventName.downloadbitratechanged, function () {
-        // console.log("videobitratechanged",player.videoBufferData().downloadCompleted.mediaDownload.bitrate,player.currentTime());
+        console.log("videobitratechanged",player.videoBufferData().downloadCompleted.mediaDownload.bitrate,player.currentTime());
 
-        streamInformation['bitrateChanges'].push([player.videoBufferData().downloadCompleted.mediaDownload.bitrate, Date.now()])
+        streamInformation['bitrateChanges'].push([player.videoBufferData().downloadCompleted.mediaDownload.bitrate, Date.now()]);
+        myVar();
       });
 
 
