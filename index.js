@@ -9,7 +9,8 @@ app.use(bodyParser.json());
 
 app.post('/', function (req, res) {
   let { height,width, currentBitrate, videotracks, bitrateChanges} =  req.body.streamInformation;
-
+  let {events} = req.body;
+  console.log(events)
 
   //check if current Bitrate is not optimal
   if(Array.isArray(videotracks)){

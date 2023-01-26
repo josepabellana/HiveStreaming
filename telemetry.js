@@ -1,12 +1,16 @@
 (function () {
   amp.plugin("telemetry", function (options) {
 
-    // video frame size -- done
-    // available video bitrates 
-    // bitrate switches 
-    // number of buffering events 
-    // time spent in buffering state 
+    /* 
 
+    1. Video frame size 
+    2. Available video bitrates 
+    3. Bitrate switches 
+    4. Number of buffering events 
+    5. time spent in buffering state  
+    
+    */
+  
     window.onbeforeunload = function (e) {
       //sending the information when closimg the window
       fetch("/", {
@@ -17,12 +21,37 @@
         },
         body: JSON.stringify({
           streamInformation,
+          events
         }),
       });
     };
     let streamInformation = {
       'bitrateChanges' : []
-    }; //streaminfroamtion contains information
+    }; //stream information contains information
+    let events = {
+      // pause: {
+      //   time: []
+      // },
+      // play: {
+      //   time: []
+      // },
+      // skip: {
+      //   time: []
+      // },
+      buffering: {
+        time: []
+      },
+      // fullscreenchange: {
+      //   time: []
+      // },
+      // volumechange: {
+      //   time: []
+      // },
+      // ended: {
+      //   time: []
+      // }
+    };
+
     var myVar = setInterval(function () {
       //every duration we send the objects to our server and reinitialize the objects to get new statistics for the next period
       fetch("/", {
@@ -33,11 +62,11 @@
         },
         body: JSON.stringify({
           streamInformation,
-          
+          events
         }),
       });
 
-      
+     
       
     }, options.timeperiod);
 
@@ -48,24 +77,46 @@
 
     player.addEventListener("loadedmetadata", function () {
       
-      
+
+      function evenLogHandler(e) {
+        console.log(e)
+        events["buffering"].time.push(player.currentTime());
+        console.log(e.type, "type");
+        console.log("events", events);
+      }
+      // player.addEventListener("play", evenLogHandler);
+      // player.addEventListener("pause", evenLogHandler);
+      // player.addEventListener("skip", evenLogHandler);
+      player.addEventListener("waiting", evenLogHandler);
+      // player.addEventListener("fullscreenchange", evenLogHandler);
+      // player.addEventListener("volumechange", evenLogHandler);
+      // player.addEventListener("ended", evenLogHandler);
+      // player.addEventListener("error", evenLogHandler);
+     
+
 
       let videoBufferData = player.videoBufferData();
+
       if (videoBufferData) {
+
+
+
+
+        //downloadComplete
         videoBufferData.addEventListener(
           amp.bufferDataEventName.downloadcompleted,
           function () {
             streamInformation[
               'currentBitrate'
             ] = player.videoBufferData().downloadCompleted.mediaDownload.bitrate
-            console.log("changelogforvideo", streamInformation);
+            // console.log("changelogforvideo", streamInformation);
           }
         );
       }
       
 
       player.addEventListener(amp.eventName.downloadbitratechanged, function () {
-        console.log("videobitratechanged",player.videoBufferData().downloadCompleted.mediaDownload.bitrate,player.currentTime());
+        // console.log("videobitratechanged",player.videoBufferData().downloadCompleted.mediaDownload.bitrate,player.currentTime());
 
         streamInformation['bitrateChanges'].push([player.videoBufferData().downloadCompleted.mediaDownload.bitrate, Date.now()])
       });
@@ -83,7 +134,7 @@
           };
           return obj;
         });
-      console.log(streamInformation);
+      // console.log(streamInformation, events);
     });
 
     // initialize the plugin
