@@ -29,6 +29,7 @@
       'bitrateChanges' : []
     }; //stream information contains information
     let events = {
+      buffered : 0,
       // pause: {
       //   time: []
       // },
@@ -73,7 +74,7 @@
         waiting: {
           time: []
         },
-        
+        buffered,
       };
       
     };
@@ -93,6 +94,7 @@
         console.log("events", events);
         myVar();
       }
+      events.buffered = player.buffered();
       player.addEventListener("play", evenLogHandler);
       // player.addEventListener("pause", evenLogHandler);
       // player.addEventListener("skip", evenLogHandler);
