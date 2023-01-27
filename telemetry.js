@@ -30,6 +30,7 @@
     }; //stream information contains information
     let events = {
       buffered : 0,
+      numberOfBufferEvents : 0,
       // pause: {
       //   time: []
       // },
@@ -74,7 +75,8 @@
         waiting: {
           time: []
         },
-        buffered,
+        buffered :  calculateBufferAhead(),
+        numberOfBufferEvents: player.buffered().length,
       };
       
     };
@@ -82,10 +84,26 @@
     let player = this;
     var init = function () {
       console.log("plugin telemetry initialized with player ", player);
+      console.log(player.buffered())
     };
 
+
+    function calculateBufferAhead() {
+      var buffered = player.buffered();
+      var currentTime = player.currentTime();
+
+      if (!buffered) {
+          return undefined;
+      }
+
+      console.log(Math.max(0, buffered.end(buffered.length - 1) - currentTime));
+  }
     player.addEventListener("loadedmetadata", function () {
       
+
+      //Calculating bufferedAhead *Does not work in SilverlightSS
+   
+
 
       function evenLogHandler(e) {
         console.log(e)
@@ -94,7 +112,7 @@
         console.log("events", events);
         myVar();
       }
-      events.buffered = player.buffered();
+      
       player.addEventListener("play", evenLogHandler);
       // player.addEventListener("pause", evenLogHandler);
       // player.addEventListener("skip", evenLogHandler);
