@@ -1,6 +1,5 @@
 (function () {
   amp.plugin("telemetry", function (options) {
-
     /* 
 
     1. Video frame size 
@@ -10,7 +9,7 @@
     5. time spent in buffering state  
     
     */
-  
+
     window.onbeforeunload = function (e) {
       //sending the information when closimg the window
       fetch("/", {
@@ -21,37 +20,41 @@
         },
         body: JSON.stringify({
           streamInformation,
-          events
+          events,
+          bufferingEvents,
         }),
       });
     };
+    let bufferingEvents ={  
+      duration:[],
+      time:[]
+    }
     let streamInformation = {
-      'bitrateChanges' : []
+      bitrateChanges: [],
     }; //stream information contains information
     let events = {
-      buffered : 0,
-      numberOfBufferEvents : 0,
-      // pause: {
-      //   time: []
-      // },
+      buffered: 0,
+      pause: {
+        time: [],
+      },
       play: {
-        time: []
+        time: [],
       },
-      // skip: {
-      //   time: []
-      // },
+      skip: {
+        time: [],
+      },
       waiting: {
-        time: []
+        time: [],
       },
-      // fullscreenchange: {
-      //   time: []
-      // },
-      // volumechange: {
-      //   time: []
-      // },
-      // ended: {
-      //   time: []
-      // }
+      fullscreenchange: {
+        time: [],
+      },
+      volumechange: {
+        time: [],
+      },
+      ended: {
+        time: [],
+      },
     };
 
     var myVar = function () {
@@ -64,94 +67,103 @@
         },
         body: JSON.stringify({
           streamInformation,
-          events
+          events,
+          bufferingEvents,
         }),
       });
 
       events = {
+        buffered: 0,
+        pause: {
+          time: [],
+        },
         play: {
-          time: []
+          time: [],
+        },
+        skip: {
+          time: [],
         },
         waiting: {
-          time: []
+          time: [],
         },
-        buffered :  calculateBufferAhead(),
-        numberOfBufferEvents: player.buffered().length,
+        fullscreenchange: {
+          time: [],
+        },
+        volumechange: {
+          time: [],
+        },
+        ended: {
+          time: [],
+        },
       };
-      
     };
 
     let player = this;
     var init = function () {
       console.log("plugin telemetry initialized with player ", player);
-      console.log(player.buffered())
     };
 
+    let memoizeWaiting = {
+      time : 0,
+    }
 
-    function calculateBufferAhead() {
-      var buffered = player.buffered();
-      var currentTime = player.currentTime();
-
-      if (!buffered) {
-          return undefined;
-      }
-
-      console.log(Math.max(0, buffered.end(buffered.length - 1) - currentTime));
-  }
     player.addEventListener("loadedmetadata", function () {
-      
-
-      //Calculating bufferedAhead *Does not work in SilverlightSS
-   
-
-
       function evenLogHandler(e) {
-        console.log(e)
-        events[e.type].time.push(Date.now());
-        console.log(e.type, "type");
-        console.log("events", events);
-        myVar();
-      }
-      
-      player.addEventListener("play", evenLogHandler);
-      // player.addEventListener("pause", evenLogHandler);
-      // player.addEventListener("skip", evenLogHandler);
-      player.addEventListener("waiting", evenLogHandler);
-      // player.addEventListener("fullscreenchange", evenLogHandler);
-      // player.addEventListener("volumechange", evenLogHandler);
-      // player.addEventListener("ended", evenLogHandler);
-      // player.addEventListener("error", evenLogHandler);
-     
 
+        if (e.type === "waiting"){ 
+          memoizeWaiting.time = Date.now();
+          bufferingEvents.time.push();
+        }else if (memoizeWaiting.time !== 0) {
+          let waitingTime = Date.now() - memoizeWaiting.time;
+          bufferingEvents.duration.push(waitingTime);
+          events.buffered += waitingTime;
+          memoizeWaiting.time = 0;
+          myVar();
+        }
+        events[e.type].time.push(Date.now());
+        console.log("buffering", bufferingEvents);
+        console.log("events", events);
+      }
+
+      player.addEventListener("play", evenLogHandler);
+      player.addEventListener("pause", evenLogHandler);
+      player.addEventListener("skip", evenLogHandler);
+      player.addEventListener("waiting", evenLogHandler);
+      player.addEventListener("fullscreenchange", evenLogHandler);
+      player.addEventListener("volumechange", evenLogHandler);
+      player.addEventListener("ended", evenLogHandler);
+      player.addEventListener("error", evenLogHandler);
 
       let videoBufferData = player.videoBufferData();
 
       if (videoBufferData) {
-
-
-
-
         //downloadComplete
         videoBufferData.addEventListener(
           amp.bufferDataEventName.downloadcompleted,
           function () {
-            streamInformation[
-              'currentBitrate'
-            ] = player.videoBufferData().downloadCompleted.mediaDownload.bitrate
-            // console.log("changelogforvideo", streamInformation);
+            streamInformation["currentBitrate"] =
+              player.videoBufferData().downloadCompleted.mediaDownload.bitrate;
             myVar();
           }
         );
       }
-      
 
-      player.addEventListener(amp.eventName.downloadbitratechanged, function () {
-        console.log("videobitratechanged",player.videoBufferData().downloadCompleted.mediaDownload.bitrate,player.currentTime());
+      player.addEventListener(
+        amp.eventName.downloadbitratechanged,
+        function () {
+          console.log(
+            "videobitratechanged",
+            player.videoBufferData().downloadCompleted.mediaDownload.bitrate,
+            player.currentTime()
+          );
 
-        streamInformation['bitrateChanges'].push([player.videoBufferData().downloadCompleted.mediaDownload.bitrate, Date.now()]);
-        myVar();
-      });
-
+          streamInformation["bitrateChanges"].push([
+            player.videoBufferData().downloadCompleted.mediaDownload.bitrate,
+            Date.now(),
+          ]);
+          myVar();
+        }
+      );
 
       streamInformation["height"] = player.height();
       streamInformation["width"] = player.width();
@@ -165,7 +177,6 @@
           };
           return obj;
         });
-      // console.log(streamInformation, events);
     });
 
     // initialize the plugin

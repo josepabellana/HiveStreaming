@@ -26,12 +26,6 @@ app.post('/', function (req, res) {
   if(length>3){
     if(bitrateChanges[length-1][1] - bitrateChanges[length-3][1] < 10000) console.log('There has been more than 2 changes in bitrate in the last 10 seconds')
   }
-  // fs.appendFile("statisticuser"+ new Date().getDate()+'.json', JSON.stringify(req.body) + '\n', function (err) {
-  //   if (err) {
-  //     return console.log(err);
-  //   }
-  //   console.log("The file was saved!");
-  // });
   res.end();
 
 })
