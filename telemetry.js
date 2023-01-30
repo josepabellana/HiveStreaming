@@ -25,10 +25,10 @@
         }),
       });
     };
-    let bufferingEvents ={  
-      duration:[],
-      time:[]
-    }
+    let bufferingEvents = {
+      duration: [],
+      time: [],
+    };
     let streamInformation = {
       bitrateChanges: [],
     }; //stream information contains information
@@ -104,16 +104,15 @@
     };
 
     let memoizeWaiting = {
-      time : 0,
-    }
+      time: 0,
+    };
 
     player.addEventListener("loadedmetadata", function () {
       function evenLogHandler(e) {
-
-        if (e.type === "waiting"){ 
+        if (e.type === "waiting") {
           memoizeWaiting.time = Date.now();
-          bufferingEvents.time.push();
-        }else if (memoizeWaiting.time !== 0) {
+          bufferingEvents.time.push(Date.now());
+        } else if (memoizeWaiting.time !== 0) {
           let waitingTime = Date.now() - memoizeWaiting.time;
           bufferingEvents.duration.push(waitingTime);
           events.buffered += waitingTime;
@@ -141,9 +140,11 @@
         videoBufferData.addEventListener(
           amp.bufferDataEventName.downloadcompleted,
           function () {
+            if(player.videoBufferData().downloadCompleted.mediaDownload.bitrate !== streamInformation["currentBitrate"]){
             streamInformation["currentBitrate"] =
               player.videoBufferData().downloadCompleted.mediaDownload.bitrate;
             myVar();
+            }
           }
         );
       }
@@ -156,12 +157,18 @@
             player.videoBufferData().downloadCompleted.mediaDownload.bitrate,
             player.currentTime()
           );
-
-          streamInformation["bitrateChanges"].push([
-            player.videoBufferData().downloadCompleted.mediaDownload.bitrate,
-            Date.now(),
-          ]);
-          myVar();
+          if (
+            streamInformation["bitrateChanges"][
+              streamInformation["bitrateChanges"].length - 1
+            ][0] !==
+            player.videoBufferData().downloadCompleted.mediaDownload.bitrate
+          ) {
+            streamInformation["bitrateChanges"].push([
+              player.videoBufferData().downloadCompleted.mediaDownload.bitrate,
+              Date.now(),
+            ]);
+            myVar();
+          }
         }
       );
 
