@@ -140,10 +140,13 @@
         videoBufferData.addEventListener(
           amp.bufferDataEventName.downloadcompleted,
           function () {
-            if(player.videoBufferData().downloadCompleted.mediaDownload.bitrate !== streamInformation["currentBitrate"]){
-            streamInformation["currentBitrate"] =
-              player.videoBufferData().downloadCompleted.mediaDownload.bitrate;
-            myVar();
+            if (
+              player.videoBufferData().downloadCompleted.mediaDownload
+                .bitrate !== streamInformation["currentBitrate"]
+            ) {
+              streamInformation["currentBitrate"] =
+                player.videoBufferData().downloadCompleted.mediaDownload.bitrate;
+              myVar();
             }
           }
         );
