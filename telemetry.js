@@ -9,28 +9,12 @@
     5. time spent in buffering state  
     
     */
-
-    window.onbeforeunload = function (e) {
-      //sending the information when closimg the window
-      fetch("/", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          streamInformation,
-          events,
-          bufferingEvents,
-        }),
-      });
-    };
     let bufferingEvents = {
       duration: [],
       time: [],
     };
     let streamInformation = {
-      bitrateChanges: [],
+      bitrateChanges: [[0,0]],
     }; //stream information contains information
     let events = {
       buffered: 0,
@@ -67,7 +51,6 @@
         },
         body: JSON.stringify({
           streamInformation,
-          events,
           bufferingEvents,
         }),
       });
@@ -120,8 +103,6 @@
           myVar();
         }
         events[e.type].time.push(Date.now());
-        console.log("buffering", bufferingEvents);
-        console.log("events", events);
       }
 
       player.addEventListener("play", evenLogHandler);
@@ -140,14 +121,11 @@
         videoBufferData.addEventListener(
           amp.bufferDataEventName.downloadcompleted,
           function () {
-            if (
-              player.videoBufferData().downloadCompleted.mediaDownload
-                .bitrate !== streamInformation["currentBitrate"]
-            ) {
-              streamInformation["currentBitrate"] =
-                player.videoBufferData().downloadCompleted.mediaDownload.bitrate;
+            if (streamInformation["currentBitrate"] !== player.videoBufferData().downloadCompleted.mediaDownload.bitrate ) {
+              streamInformation["currentBitrate"] = player.videoBufferData().downloadCompleted.mediaDownload.bitrate;
               myVar();
             }
+            console.log(streamInformation)
           }
         );
       }
@@ -155,23 +133,14 @@
       player.addEventListener(
         amp.eventName.downloadbitratechanged,
         function () {
-          console.log(
-            "videobitratechanged",
-            player.videoBufferData().downloadCompleted.mediaDownload.bitrate,
-            player.currentTime()
-          );
-          if (
-            streamInformation["bitrateChanges"][
-              streamInformation["bitrateChanges"].length - 1
-            ][0] !==
-            player.videoBufferData().downloadCompleted.mediaDownload.bitrate
-          ) {
+          if (streamInformation["bitrateChanges"][streamInformation["bitrateChanges"].length - 1][0] !== player.videoBufferData().downloadCompleted.mediaDownload.bitrate) {
             streamInformation["bitrateChanges"].push([
               player.videoBufferData().downloadCompleted.mediaDownload.bitrate,
               Date.now(),
             ]);
             myVar();
           }
+          console.log(streamInformation)
         }
       );
 
