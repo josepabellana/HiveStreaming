@@ -20,7 +20,6 @@
       bitrateChanges: [[0,0]],
     }; 
     let events = {
-      buffered: 0,
       pause: {
         time: [],
       },
@@ -44,8 +43,9 @@
       },
     };
 
-    var myVar = function () {
+    function sendData() {
       //We send the objects to our server and reinitialize the objects to get new statistics for the next period
+      // console.log(streamInformation,bufferingEvents)
       fetch("/", {
         method: "POST",
         headers: {
@@ -59,7 +59,6 @@
       });
 
       events = {
-        buffered: 0,
         pause: {
           time: [],
         },
@@ -99,13 +98,13 @@
       function evenLogHandler(e) {
         if (e.type === "waiting") {
           memoizeWaiting.time = Date.now();
-          bufferingEvents.time.push(Date.now());
+          
         } else if (memoizeWaiting.time !== 0) {
           let waitingTime = Date.now() - memoizeWaiting.time;
           bufferingEvents.duration.push(waitingTime); //we store the duration of a specific buffering event 
-          events.buffered += waitingTime; //store the total buffered time
+          bufferingEvents.time.push(Date.now() - waitingTime);
           memoizeWaiting.time = 0;
-          myVar();
+          sendData();
         }
         events[e.type].time.push(Date.now()); 
       }
@@ -124,28 +123,24 @@
 
       if (videoBufferData) {
         //once the download has been completed, even in the end or when has stored the next 30sec of video. It triggers this event where we check if bitrate has changed
-        videoBufferData.addEventListener(
-          amp.bufferDataEventName.downloadcompleted,
-          function () {
+        videoBufferData.addEventListener(amp.bufferDataEventName.downloadcompleted,function () {
             if (streamInformation["currentBitrate"] !== player.videoBufferData().downloadCompleted.mediaDownload.bitrate ) {
               streamInformation["currentBitrate"] = player.videoBufferData().downloadCompleted.mediaDownload.bitrate;
-              myVar();
+              sendData();
             }
           }
         );
       }
 
       //Event listener for change of current bitrate download
-      player.addEventListener(
-        amp.eventName.downloadbitratechanged,
-        function () {
+      player.addEventListener(amp.eventName.downloadbitratechanged,function () {
           //if the bitrate has changed (difference on what we previously stored -> avoid multiple http request) update the stream information
           if (streamInformation["bitrateChanges"][streamInformation["bitrateChanges"].length - 1][0] !== player.videoBufferData().downloadCompleted.mediaDownload.bitrate) {
             streamInformation["bitrateChanges"].push([
               player.videoBufferData().downloadCompleted.mediaDownload.bitrate,
               Date.now(),
             ]);
-            myVar();
+            sendData();
           }
         }
       );
