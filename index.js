@@ -1,6 +1,5 @@
 const express = require('express');
 const app = express();
-const fs = require('fs');
 const bodyParser = require('body-parser');
 
 app.use(express.static(__dirname));
@@ -8,7 +7,7 @@ app.use(bodyParser.json());
 
 
 app.post('/', function (req, res) {
-  let { height,width, currentBitrate, videotracks, bitrateChanges} =  req.body.streamInformation;
+  let {height,width, currentBitrate, videotracks, bitrateChanges} =  req.body.streamInformation;
   let {duration, time} = req.body.bufferingEvents;
 
   //check if current Bitrate is not optimal
@@ -49,6 +48,7 @@ app.post('/', function (req, res) {
   res.end();
 
 })
+
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
